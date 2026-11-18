@@ -117,7 +117,9 @@ cp backend/.env.example backend/.env
    DATABASE_URL=postgresql://civicloop_user:your_secure_local_password@127.0.0.1:5432/civicloop_dev?schema=public
    ```
    If these values diverge, the PostgreSQL container will initialize using `POSTGRES_PASSWORD`, but backend connections via `DATABASE_URL` will fail authentication.
-3. **Never Commit `.env`:**
+3. **Port Consistency Between `POSTGRES_PORT` and `DATABASE_URL`:**
+   `POSTGRES_PORT` controls the host port exposed by Docker Compose on `127.0.0.1`. The default port remains `5432`. If `POSTGRES_PORT` is changed to avoid a local port collision (for example, setting `POSTGRES_PORT=5433`), the port in `DATABASE_URL` must be updated to match (for example, `postgresql://civicloop_user:your_secure_local_password@127.0.0.1:5433/civicloop_dev?schema=public`).
+4. **Never Commit `.env`:**
    Real `.env` files contain sensitive local credentials and **must never be committed** to Git or pushed to remote repositories. The active `.env` file is strictly ignored by `.gitignore` (only `.env.example` files are committed as sanitized templates).
 
 ---
@@ -157,7 +159,8 @@ docker compose logs -f postgres
 # 5. Verify database readiness directly with pg_isready
 docker compose exec postgres pg_isready
 
-# 6. Connect via psql inside the container (optional inspection)
+# 6. Connect via psql inside the container (default configuration example)
+# Note: If POSTGRES_USER or POSTGRES_DB were customized in .env, replace 'civicloop_user' and 'civicloop_dev' with your configured values.
 docker compose exec -it postgres psql -U civicloop_user -d civicloop_dev
 
 # 7. Stop the database container (preserves volume data)
