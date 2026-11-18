@@ -1,8 +1,8 @@
 # CivicLoop — Architecture
 
-**Version:** 0.1  
-**Status:** Initial logical architecture  
-**Technology stack:** To be finalized before implementation  
+**Version:** 0.2  
+**Status:** Logical architecture baseline; implementation in progress  
+**Technology stack:** Approved baseline recorded in `DECISIONS.md`; implementation details may evolve through reviewed ADR updates  
 **MVP demonstration target:** 24 November 2026
 
 ## 1. Architecture Goals
@@ -243,20 +243,21 @@ Exact routes and payload schemas will be defined during implementation. Expected
 
 ## 11. Technology Decisions
 
-The following choices are intentionally pending:
+The approved stack baseline is recorded in `DECISIONS.md`. Current implementation status:
 
-| Area | Decision |
+| Area | Approved direction / current status |
 |---|---|
-| Frontend framework | To be finalized |
-| Styling and component system | To be finalized |
-| Backend framework/runtime | To be finalized |
-| Database | To be finalized |
-| Authentication/session strategy | To be finalized |
-| File storage | To be finalized |
-| Hosting/deployment | To be finalized |
-| Testing tools | To be finalized |
+| Frontend framework | React + TypeScript + Vite; foundation initialized |
+| Styling and component system | Tailwind CSS + shadcn/ui approved baseline; implementation setup pending |
+| Backend framework/runtime | Node.js 26 LTS + TypeScript + Fastify; foundation initialized |
+| Database | PostgreSQL 16 local Docker Compose infrastructure configured |
+| Database access | Prisma approved; integration and schema pending |
+| Authentication/session strategy | Argon2id + server-managed cookie sessions direction approved; implementation details pending |
+| File storage | Production provider undecided |
+| Hosting/deployment | Provider undecided |
+| Testing tools | Test runner and full strategy to be finalized during implementation |
 
-Do not initialize framework-specific project files until these decisions are agreed and recorded.
+Changes to approved choices must be proposed and recorded in `DECISIONS.md`.
 
 ## 12. Architecture Decision Log
 
