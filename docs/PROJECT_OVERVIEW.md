@@ -79,4 +79,4 @@ Advanced machine learning, native mobile applications, external government-porta
 
 ## 9. Project Status
 
-This repository contains the initial project structure and planning documents. Features described here are planned scope, not claims of completed implementation. Technology choices and detailed architecture will be recorded in the architecture document as they are finalized.
+This repository contains the initial project structure and planning documents. Features described here are planned scope, not claims of completed implementation. The technology stack baseline is recorded in docs/DECISIONS.md. Hosting and production file-storage choices remain undecided; implementation has not yet started.
