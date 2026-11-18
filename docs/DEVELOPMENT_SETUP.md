@@ -2,13 +2,13 @@
 
 **Status:** Phase 1 Application Initialization Complete (Frontend & Backend Scaffolding Established)  
 **Applies to:** Frontend and backend contributors  
-**Baseline Node.js:** Node.js 24 LTS (Verified on Node.js `v26.13.0`, npm `11.20.0`)  
+**Baseline Node.js:** Node.js 26 LTS (Verified on Node.js `v26.13.0`, npm `11.20.0`)  
 
 ---
 
 ## 1. Prerequisites
 - **Git**
-- **Node.js**: Minimum Node.js 24 LTS baseline (tested and verified with Node.js `v26.13.0`).
+- **Node.js**: Node.js 26 LTS baseline (tested and verified with Node.js `v26.13.0`).
 - **npm**: npm `11.20.0` (use npm exclusively; do not mix package managers).
 - **PostgreSQL**: Required starting from Phase 2 (local service or container).
 - **Editor**: VS Code or preferred editor with TypeScript support.

@@ -4,7 +4,7 @@
 **Applies to:** Frontend and backend contributors  
 **Architecture:** React + TypeScript + Vite / Node.js + Fastify / PostgreSQL + Prisma  
 **Package manager:** npm only  
-**Node.js baseline:** Node.js 24 LTS (Verified on Node.js `v26.13.0`, npm `11.20.0`)  
+**Node.js baseline:** Node.js 26 LTS (Verified on Node.js `v26.13.0`, npm `11.20.0`)  
 
 > **Note on Phase 1 Initialization:** Phase 1 establishes the minimal independent applications for the frontend (`frontend/`) and backend (`backend/`). Dependencies are committed in separate `package.json` and `package-lock.json` manifests. Optional packages (such as Prisma, Argon2, Tailwind CSS, or Vitest) are deferred to their designated roadmap phases to keep the project baseline minimal and clean.
 
@@ -85,7 +85,7 @@ CivicLoop/
 | `typescript` | `~7.0.2` | `7.0.2` | Static type checking and TypeScript language support. |
 | `@types/react` | `^19.3.0` | `19.3.0` | TypeScript definitions for React. |
 | `@types/react-dom` | `^19.3.0` | `19.3.0` | TypeScript definitions for React DOM. |
-| `@types/node` | `^24.19.2` | `24.19.2` | Node.js type definitions for Vite configuration. |
+| `@types/node` | `^26.6.6` | `26.6.6` | Node.js type definitions for Vite configuration. |
 | `oxlint` | `^1.90.0` | `1.94.0` | Fast static code analysis / linter. |
 
 ### Configured frontend scripts (`frontend/package.json`)
@@ -164,7 +164,7 @@ CivicLoop/
 
 | Tool | Purpose | Where it runs | Status |
 |---|---|---|---|
-| **Node.js** | JavaScript/TypeScript server and tooling runtime. | Developer machine and server runtime. | Installed (baseline Node 24, tested on v26.13.0). |
+| **Node.js** | JavaScript/TypeScript server and tooling runtime. | Developer machine and server runtime. | Installed (baseline Node 26, tested on v26.13.0). |
 | **npm** | Package management and lifecycle scripts. | Developer machine and CI. | Installed (v11.20.0). |
 | **Git** | Distributed version control. | Developer machine and GitHub. | Active repository. |
 | **PostgreSQL** | Relational database for complaints, users, groups, and audit trails. | Local service or container. | Required in Phase 2. |
@@ -193,7 +193,7 @@ Real `.env` files are ignored by Git. Never commit real secrets or database cred
 
 ## 7. Version and lockfile policy
 
-1. **Team baseline:** Node.js 24 LTS. Tested and verified on Node.js `v26.13.0` and npm `11.20.0`.
+1. **Team baseline:** Node.js 26 LTS. Tested and verified on Node.js `v26.13.0` and npm `11.20.0`.
 2. **Package manager:** npm exclusively. Never commit `yarn.lock` or `pnpm-lock.yaml`.
 3. **Lockfile discipline:** Separate `package-lock.json` files are committed in `frontend/` and `backend/`.
 4. **Reproducible installs:** Use `npm ci` when installing from a fresh clone.
