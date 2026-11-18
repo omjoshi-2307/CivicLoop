@@ -8,3 +8,4 @@ A citizen-centric civic grievance platform for transparent complaint tracking, d
 - [Requirements](docs/REQUIREMENTS.md) — agreed MVP functionality and scope.
 - [Architecture](docs/ARCHITECTURE.md) — logical system design and module boundaries.
 - [Technology Stack Explained](docs/TECH_STACK_EXPLAINED.md) — what each selected technology does, why it was chosen, and how the components work together.
+- [Dependencies and Setup Guide](docs/DEPENDENCIES.md) — planned packages, their purposes, install commands, environment configuration and contributor rules.
