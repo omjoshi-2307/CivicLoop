@@ -3,7 +3,7 @@
 **Tagline:** Complaints That Don't Disappear  
 **Program:** Anveshana 2026–27  
 **MVP demonstration target:** 24 November 2026  
-**Document status:** Initial project baseline
+**Document status:** Project baseline; implementation in progress
 
 ## 1. What is CivicLoop?
 
@@ -79,4 +79,8 @@ Advanced machine learning, native mobile applications, external government-porta
 
 ## 9. Project Status
 
-This repository contains the initial project structure and planning documents. Features described here are planned scope, not claims of completed implementation. The technology stack baseline is recorded in docs/DECISIONS.md. Hosting and production file-storage choices remain undecided; implementation has not yet started.
+The implementation foundation is in place: Phase 1 established the independent React/Vite frontend and Fastify backend, and Phase 2.1 added local PostgreSQL 16 infrastructure through Docker Compose. These milestones are merged into `main` (PR #1 and PR #2).
+
+Prisma integration, the initial database schema and migrations, authentication, RBAC, and citizen/authority complaint workflows have not yet been implemented. The features described in this overview are planned MVP scope, not claims of completed functionality.
+
+See [PROJECT_PROGRESS.md](PROJECT_PROGRESS.md) for the current milestone tracker. Approved technology choices are recorded in [DECISIONS.md](DECISIONS.md). Hosting and production file-storage choices remain undecided.
