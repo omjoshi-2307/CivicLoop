@@ -1,6 +1,6 @@
 # CivicLoop — Development Setup
 
-**Status:** Phase 1 Application Initialization Complete (Frontend & Backend Scaffolding Established)  
+**Status:** Phase 2.1 Database Infrastructure Configured (PostgreSQL 16 Docker Compose Established)
 **Applies to:** Frontend and backend contributors  
 **Baseline Node.js:** Node.js 26 LTS (Verified on Node.js `v26.13.0`, npm `11.20.0`)  
 
@@ -10,28 +10,31 @@
 - **Git**
 - **Node.js**: Node.js 26 LTS baseline (tested and verified with Node.js `v26.13.0`).
 - **npm**: npm `11.20.0` (use npm exclusively; do not mix package managers).
-- **PostgreSQL**: Required starting from Phase 2 (local service or container).
+- **Docker & Docker Compose**: Required for running the local PostgreSQL 16 container (Docker Compose v2+ / Docker Desktop).
+- **PostgreSQL**: PostgreSQL 16 (provided locally via Docker Compose).
 - **Editor**: VS Code or preferred editor with TypeScript support.
 
 ---
 
-## 2. Clone and Branch
-Clone the repository and switch to your feature branch:
+## 2. Clone Repository
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/omjoshi-2307/CivicLoop.git
 cd CivicLoop
-git checkout feat/phase-1-app-initialization
 ```
 
 ---
 
 ## 3. Application Layout & Ports
 
-The repository contains two independent TypeScript applications without root-level workspaces:
+The repository contains two independent TypeScript applications and local database infrastructure:
 
 ```text
 CivicLoop/
+├── docker-compose.yml      # Local PostgreSQL 16 container definition
+├── .env.example            # Root template for PostgreSQL credentials & DATABASE_URL
 ├── frontend/               # React 19 + TypeScript + Vite client (Port 5173)
 │   ├── src/
 │   │   ├── App.tsx         # CivicLoop entry screen
@@ -58,17 +61,26 @@ CivicLoop/
 ```
 
 ### Local Network Ports and Endpoints
-| Application | Default Port | Host | Key Endpoints |
+| Service / Application | Default Port | Host Binding | Key Endpoints / Health |
 |---|---|---|---|
 | **Frontend** | `5173` | `localhost` | `http://localhost:5173/` |
 | **Backend** | `3000` | `127.0.0.1` / `0.0.0.0` | `GET http://127.0.0.1:3000/health` |
+| **PostgreSQL** | `5432` | `127.0.0.1` | `127.0.0.1:5432` (`pg_isready` health check) |
 
 ---
 
 ## 4. Environment Configuration
 
-Both applications support environment variables through untracked `.env` files. Safe template files are provided:
+Configuration is managed via untracked `.env` files. Safe template files are provided at the root and in each subproject:
 
+- Root `.env.example` (PostgreSQL container & local database connection):
+  ```env
+  POSTGRES_USER=civicloop_user
+  POSTGRES_PASSWORD=civicloop_dev_password_change_me
+  POSTGRES_DB=civicloop_dev
+  POSTGRES_PORT=5432
+  DATABASE_URL=postgresql://civicloop_user:civicloop_dev_password_change_me@127.0.0.1:5432/civicloop_dev?schema=public
+  ```
 - `frontend/.env.example`
   ```env
   VITE_API_BASE_URL=http://127.0.0.1:3000/api/v1
@@ -80,8 +92,11 @@ Both applications support environment variables through untracked `.env` files. 
   NODE_ENV=development
   ```
 
-Copy the template to create local configuration if custom values are needed:
+Copy the templates to create local configuration:
 ```bash
+# Root (PostgreSQL & Docker Compose)
+cp .env.example .env
+
 # Frontend
 cp frontend/.env.example frontend/.env
 
@@ -89,11 +104,71 @@ cp frontend/.env.example frontend/.env
 cp backend/.env.example backend/.env
 ```
 
-*Note: Real `.env` files are ignored by Git. Never commit secrets, credentials, or personal information.*
+### Critical Local `.env` Configuration Rules:
+1. **Replace Placeholder Passwords Before Starting PostgreSQL:**
+   After copying `.env.example` to `.env`, open your local `.env` file and change the default placeholder password (`civicloop_dev_password_change_me`) to your own local development password before launching the PostgreSQL container.
+2. **Synchronize `POSTGRES_PASSWORD` and `DATABASE_URL`:**
+   Ensure `POSTGRES_PASSWORD` and the password in `DATABASE_URL` match exactly:
+   ```env
+   POSTGRES_USER=civicloop_user
+   POSTGRES_PASSWORD=your_secure_local_password
+   POSTGRES_DB=civicloop_dev
+   POSTGRES_PORT=5432
+   DATABASE_URL=postgresql://civicloop_user:your_secure_local_password@127.0.0.1:5432/civicloop_dev?schema=public
+   ```
+   If these values diverge, the PostgreSQL container will initialize using `POSTGRES_PASSWORD`, but backend connections via `DATABASE_URL` will fail authentication.
+3. **Never Commit `.env`:**
+   Real `.env` files contain sensitive local credentials and **must never be committed** to Git or pushed to remote repositories. The active `.env` file is strictly ignored by `.gitignore` (only `.env.example` files are committed as sanitized templates).
 
 ---
 
-## 5. Frontend Setup & Verification
+## 5. Database Setup & Verification (PostgreSQL 16 via Docker Compose)
+
+Local database infrastructure is defined in `docker-compose.yml` using the official `postgres:16` image.
+
+### Database Specifications
+- **Service & Container:** `civicloop-postgres`
+- **Image:** `postgres:16`
+- **Host Binding:** `127.0.0.1:${POSTGRES_PORT:-5432}:5432` (strictly bound to loopback; never exposed on external interfaces)
+- **Database:** `civicloop_dev` (configurable via `POSTGRES_DB`)
+- **User:** `civicloop_user` (configurable via `POSTGRES_USER`)
+- **Volume:** `civicloop_postgres_data` (named persistent volume)
+- **Restart Policy:** `unless-stopped`
+- **Health Check:** `pg_isready -U ${POSTGRES_USER:-civicloop_user} -d ${POSTGRES_DB:-civicloop_dev}`
+
+### Commands
+
+Before running Docker Compose, verify that your root `.env` already exists and is configured with your local database credentials (see Section 4). **Do not overwrite an existing `.env` file** (do not re-run `cp .env.example .env`), as doing so will overwrite your configured passwords.
+
+```bash
+# 1. Validate Docker Compose configuration
+docker compose config
+# (or: docker-compose config)
+
+# 2. Start PostgreSQL container in background
+docker compose up -d
+
+# 3. Check container status and health status (wait until 'healthy')
+docker compose ps
+
+# 4. View container logs
+docker compose logs -f postgres
+
+# 5. Verify database readiness directly with pg_isready
+docker compose exec postgres pg_isready
+
+# 6. Connect via psql inside the container (optional inspection)
+docker compose exec -it postgres psql -U civicloop_user -d civicloop_dev
+
+# 7. Stop the database container (preserves volume data)
+docker compose down
+
+# CAUTION: Do NOT use 'docker compose down -v' unless you want to destroy persistent data.
+```
+
+---
+
+## 6. Frontend Setup & Verification
 
 Navigate to `frontend/`:
 
@@ -124,7 +199,7 @@ npm run build
 
 ---
 
-## 6. Backend Setup & Verification
+## 7. Backend Setup & Verification
 
 Navigate to `backend/`:
 
@@ -163,8 +238,8 @@ curl http://127.0.0.1:3000/health
 
 ---
 
-## 7. Upcoming Phase 2 Steps (Database & Authentication)
-- Install and configure PostgreSQL service/container.
-- Initialize Prisma schema and initial migrations.
-- Connect backend to development database via `DATABASE_URL`.
-- Implement citizen authentication, persistent session management, and RBAC boundaries.
+## 8. Upcoming Phase 2 Steps (Database & Authentication)
+- [x] Phase 2.1: Configure PostgreSQL 16 local infrastructure via Docker Compose.
+- [ ] Phase 2.2: Initialize Prisma schema and create initial migrations.
+- [ ] Phase 2.3: Connect backend to development database via `DATABASE_URL`.
+- [ ] Phase 2.4: Implement citizen authentication, persistent session management, and RBAC boundaries.
