@@ -1,12 +1,12 @@
 # CivicLoop — Dependencies and Setup Guide
 
-**Status:** Planned dependency baseline — not an installation record  
+**Status:** Phase 1 Installed Baseline (Active) & Phase 2+ Planned Baseline  
 **Applies to:** Frontend and backend contributors  
 **Architecture:** React + TypeScript + Vite / Node.js + Fastify / PostgreSQL + Prisma  
-**Package manager:** npm  
-**Hosting:** Undecided; local development first
+**Package manager:** npm only  
+**Node.js baseline:** Node.js 26 LTS (Verified on Node.js `v26.13.0`, npm `11.20.0`)  
 
-> Important: This document defines the packages we expect to use and explains their purpose. It does **not** mean these packages are already installed. There are currently no frontend or backend `package.json` manifests in the repository. Install dependencies only during the approved project setup stage, then commit the generated manifests and lockfiles.
+> **Note on Phase 1 Initialization:** Phase 1 establishes the minimal independent applications for the frontend (`frontend/`) and backend (`backend/`). Dependencies are committed in separate `package.json` and `package-lock.json` manifests. Optional packages (such as Prisma, Argon2, Tailwind CSS, or Vitest) are deferred to their designated roadmap phases to keep the project baseline minimal and clean.
 
 ---
 
@@ -14,293 +14,214 @@
 
 A dependency is a package or tool that our application relies on to perform a task. For example:
 
-- React helps build the user interface.
+- React renders the user interface.
 - Fastify handles backend HTTP requests.
-- Prisma helps backend code communicate with PostgreSQL.
-- Vitest runs automated tests.
+- Prisma will manage database schema access and migrations (Phase 2).
+- Vitest will execute unit and integration tests.
 
-Dependencies are recorded in a `package.json` file. npm downloads the packages, while `package-lock.json` records the resolved dependency tree so contributors can reproduce an installation with `npm ci`.
+Dependencies are recorded in `package.json`. npm downloads the packages, while `package-lock.json` pins the exact resolved dependency tree so all contributors reproduce identical installations with `npm ci`.
 
 ### Dependency categories
 
-| Category | Meaning | Example |
-|---|---|---|
-| Runtime dependency | Needed when the application runs | React, Fastify |
-| Development dependency | Needed to build, type-check, lint or test | TypeScript, Vite, Vitest |
-| External service/tool | Installed or run separately from npm | PostgreSQL |
-| CLI/scaffolding tool | Used to generate or configure project files | shadcn CLI |
-
-Do not add a package just because it is popular. Each dependency should have a clear responsibility.
+| Category | Meaning | Phase 1 Example | Future Phase Example |
+|---|---|---|---|
+| Runtime dependency | Needed when the application runs | `react`, `fastify` | `@prisma/client`, `argon2` |
+| Development dependency | Needed to build, type-check, lint or run dev server | `typescript`, `vite`, `tsx` | `vitest`, `prisma` |
+| External service/tool | Installed or run separately from npm | Node.js, npm, Git | PostgreSQL |
+| Scaffolding tool | Generates or configures project files | Vite template | shadcn CLI |
 
 ---
 
 ## 2. Repository package layout
 
-We will keep frontend and backend dependencies separate:
+Frontend and backend dependencies are kept completely separate:
 
 ```text
 CivicLoop/
 ├── frontend/
+│   ├── .env.example
 │   ├── package.json
-│   └── package-lock.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│   ├── tsconfig.app.json
+│   ├── tsconfig.node.json
+│   ├── vite.config.ts
+│   └── src/
 ├── backend/
+│   ├── .env.example
 │   ├── package.json
-│   └── package-lock.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│   └── src/
 ├── docs/
+├── .gitignore
 └── README.md
 ```
 
 - Install frontend packages from `frontend/`.
 - Install backend packages from `backend/`.
-- Do not install every package at the repository root.
-- Commit both `package.json` and `package-lock.json` for each application.
-- Contributors should use `npm ci` after cloning, not independently regenerate lockfiles.
-
-We are not introducing a monorepo workspace tool for the MVP.
+- Do not install packages at the repository root.
+- Do not create a root `package.json` or npm workspace.
+- Separate `package-lock.json` files are committed for each application.
+- Contributors should use `npm ci` for clean reproducible installs after cloning.
 
 ---
 
 ## 3. Frontend dependencies
 
-### Application dependencies
+### Installed Phase 1 dependencies
 
-| Package | Category | Purpose in CivicLoop |
+#### Application runtime dependencies
+| Package | Manifest Version | Installed Version | Purpose in CivicLoop |
+|---|---|---|---|
+| `react` | `^19.3.1` | `19.3.1` | Renders user interface components and handles state. |
+| `react-dom` | `^19.3.1` | `19.3.1` | Mounts and renders React components into the browser DOM. |
+
+#### Development dependencies
+| Package | Manifest Version | Installed Version | Purpose |
+|---|---|---|---|
+| `vite` | `^8.3.6` | `8.3.8` | Development server with HMR and production bundle builder. |
+| `@vitejs/plugin-react` | `^6.1.2` | `6.3.0` | Official React support plugin for Vite. |
+| `typescript` | `~7.0.2` | `7.0.2` | Static type checking and TypeScript language support. |
+| `@types/react` | `^19.3.0` | `19.3.0` | TypeScript definitions for React. |
+| `@types/react-dom` | `^19.3.0` | `19.3.0` | TypeScript definitions for React DOM. |
+| `@types/node` | `^26.6.6` | `26.6.6` | Node.js type definitions for Vite configuration. |
+| `oxlint` | `^1.90.0` | `1.94.0` | Fast static code analysis / linter. |
+
+### Configured frontend scripts (`frontend/package.json`)
+| Script | Command | Purpose |
 |---|---|---|
-| `react` | Runtime | Builds reusable UI components and interactive screens. |
-| `react-dom` | Runtime | Renders React into the browser DOM. |
-| `react-router-dom` | Runtime | Handles navigation between citizen, authority and admin pages. |
-| `recharts` | Runtime, when analytics UI begins | Displays ward and complaint statistics as charts. |
-| `lucide-react` | Runtime, if adopted by the UI design | Provides consistent interface icons. |
+| `dev` | `vite` | Starts local Vite dev server at `http://localhost:5173`. |
+| `build` | `tsc -b && vite build` | Typechecks with project references and builds production bundle to `dist/`. |
+| `typecheck` | `tsc -b --noEmit` | Static typecheck across all references without generating output files. |
+| `preview` | `vite preview` | Previews the production build locally. |
+| `lint` | `oxlint` | Runs Oxlint linter across project source. |
 
-### Development dependencies
+### Planned frontend dependencies (Phase 2+)
 
-| Package | Category | Purpose |
-|---|---|---|
-| `vite` | Development | Frontend dev server and production build tool. |
-| `@vitejs/plugin-react` | Development | React support in Vite. |
-| `typescript` | Development | Static type checking and TypeScript compilation support. |
-| `@types/react` | Development | React type definitions. |
-| `@types/react-dom` | Development | React DOM type definitions. |
-| `tailwindcss` | Build/development | Utility-first CSS framework. |
-| `@tailwindcss/vite` | Build/development | Integrates Tailwind CSS v4 with Vite, if Tailwind v4 is selected during setup. |
-| `vitest` | Development | Frontend and shared utility tests. |
-| `@testing-library/react` | Development | Tests React components through user-facing behaviour. |
-| `@testing-library/user-event` | Development | Simulates realistic user interactions in component tests. |
-| `@testing-library/jest-dom` | Development | Adds useful DOM assertions. |
-| `jsdom` | Development | Browser-like DOM environment for component tests. |
-
-### shadcn/ui
-
-shadcn/ui is not installed as one conventional runtime component-library dependency. Its CLI adds selected component source files and supporting configuration to our project.
-
-We will initialize it only after the frontend framework and styling setup are working. Contributors should use the existing project components instead of independently initializing a second shadcn configuration.
-
-Official guide: https://ui.shadcn.com/docs/installation/vite
-
-### Frontend installation plan
-
-Run these commands from the repository root after the frontend setup task is approved:
-
-```bash
-cd frontend
-npm install react react-dom react-router-dom
-npm install -D vite @vitejs/plugin-react typescript @types/react @types/react-dom
-```
-
-Add styling and testing packages in the dedicated setup step. For Tailwind v4 with its Vite plugin:
-
-```bash
-npm install -D tailwindcss @tailwindcss/vite
-```
-
-Add charts when the analytics interface is implemented:
-
-```bash
-npm install recharts
-```
-
-Add component testing packages when test configuration is created:
-
-```bash
-npm install -D vitest jsdom @testing-library/react @testing-library/user-event @testing-library/jest-dom
-```
-
-Optional icon package, only if the agreed design uses it:
-
-```bash
-npm install lucide-react
-```
+| Package | Category | Planned Phase | Purpose |
+|---|---|---|---|
+| `react-router-dom` | Runtime | Phase 2 | Client-side routing between citizen, authority, and admin routes. |
+| `tailwindcss` | Build/dev | Styling setup | Utility-first CSS framework. |
+| `@tailwindcss/vite` | Build/dev | Styling setup | Tailwind CSS v4 Vite integration. |
+| `shadcn/ui` | Scaffolding | UI baseline | Reusable UI component scaffolding (button, dialog, card, etc.). |
+| `recharts` | Runtime | Phase 5 | Ward analytics and complaint distribution charts. |
+| `lucide-react` | Runtime | Phase 3/4 | Consistent iconography. |
+| `vitest` | Development | Testing setup | Unit and component test runner. |
+| `jsdom` | Development | Testing setup | DOM emulation environment for tests. |
+| `@testing-library/react` | Development | Testing setup | User-centric React component testing. |
+| `@testing-library/user-event` | Development | Testing setup | Simulates realistic browser interactions. |
+| `@testing-library/jest-dom` | Development | Testing setup | DOM matchers and assertions. |
 
 ---
 
 ## 4. Backend dependencies
 
-### Application dependencies
+### Installed Phase 1 dependencies
 
-| Package | Category | Purpose in CivicLoop |
+#### Application runtime dependencies
+| Package | Manifest Version | Installed Version | Purpose in CivicLoop |
+|---|---|---|---|
+| `fastify` | `^5.12.8` | `5.12.8` | High-performance HTTP server, route routing, and plugin architecture. |
+
+#### Development dependencies
+| Package | Manifest Version | Installed Version | Purpose |
+|---|---|---|---|
+| `typescript` | `^7.0.2` | `7.0.2` | Static type checking and transpilation to JavaScript. |
+| `@types/node` | `^26.6.6` | `26.6.6` | TypeScript type definitions for Node.js runtime APIs. |
+| `tsx` | `^4.23.15` | `4.23.15` | Native TypeScript executor and hot-reloading development runner. |
+
+### Configured backend scripts (`backend/package.json`)
+| Script | Command | Purpose |
 |---|---|---|
-| `fastify` | Runtime | Creates the HTTP API server and handles routes and requests. |
-| `@fastify/cookie` | Runtime | Parses and manages browser cookies. |
-| `@fastify/session` | Runtime | Provides server-managed session handling; requires a compatible persistent session-store adapter. |
-| `@fastify/cors` | Runtime, if frontend/backend use separate origins | Controls which browser origins may call the API. Configure explicit allowed origins; do not use unrestricted production CORS. |
-| `@fastify/helmet` | Runtime | Adds security-related HTTP response headers. |
-| `@fastify/multipart` | Runtime | Handles complaint and resolution evidence uploads with explicit limits. |
-| `@fastify/rate-limit` | Runtime | Limits repeated requests, especially authentication attempts and other abuse-prone routes. |
-| `zod` | Runtime | Validates request data and other untrusted input where selected. |
-| `argon2` | Runtime | Hashes and verifies user passwords using Argon2id. |
-| `@prisma/client` | Runtime | Provides typed database access from backend code. |
-| `dotenv` | Runtime/development configuration | Loads local environment variables where the chosen Node configuration requires it. |
+| `dev` | `tsx watch src/index.ts` | Runs dev server with live watch/reload on port 3000. |
+| `build` | `tsc` | Transpiles TypeScript files from `src/` into `dist/`. |
+| `start` | `node dist/index.js` | Runs compiled server entry point in production mode. |
+| `typecheck` | `tsc --noEmit` | Static type checking without emitting files. |
 
-**Session-store decision:** The session cookie and session-management plugin are not the database store by themselves. Before implementation, we must select and test a maintained PostgreSQL-compatible store adapter for the chosen Fastify session plugin. Do not silently substitute an in-memory store: sessions must survive server restarts and work across backend instances if deployment later requires it.
+### Planned backend dependencies (Phase 2+)
 
-**CORS note:** If the frontend and backend are served from the same origin, CORS may not be needed in production. Local development often uses separate ports, so a narrowly configured development origin may be useful.
-
-### Development dependencies
-
-| Package | Category | Purpose |
-|---|---|---|
-| `typescript` | Development | Type checking and compilation support. |
-| `tsx` | Development | Runs TypeScript files during local development. |
-| `prisma` | Development | Prisma CLI for schema validation, client generation and migrations. |
-| `vitest` | Development | Tests backend services and utility logic. |
-| `supertest` | Development | Tests HTTP API behaviour. |
-| `@types/supertest` | Development | Type definitions for Supertest. |
-| `@types/node` | Development | Node.js type definitions. |
-
-### Backend installation plan
-
-Run these commands from the repository root after the backend setup task is approved:
-
-```bash
-cd backend
-npm install fastify @fastify/cookie @fastify/session @fastify/helmet @fastify/multipart @fastify/rate-limit zod argon2 @prisma/client
-npm install -D typescript tsx prisma @types/node vitest supertest @types/supertest
-```
-
-Install `@fastify/cors` only if the chosen local or production origin arrangement requires it:
-
-```bash
-npm install @fastify/cors
-```
-
-The PostgreSQL session-store adapter is intentionally not listed as a final package yet. Confirm compatibility with the selected session plugin and test persistence before adding it.
+| Package | Category | Planned Phase | Purpose |
+|---|---|---|---|
+| `@prisma/client` | Runtime | Phase 2 | Type-safe database queries for PostgreSQL. |
+| `prisma` | Development | Phase 2 | Schema migration and Prisma client generation CLI. |
+| `argon2` | Runtime | Phase 2 | Secure Argon2id password hashing. |
+| `@fastify/cookie` | Runtime | Phase 2 | HTTP cookie parsing and signing. |
+| `@fastify/session` | Runtime | Phase 2 | Server-managed session management. |
+| *Session Store Adapter* | Runtime | Phase 2 | PostgreSQL-backed persistent session store. |
+| `@fastify/cors` | Runtime | Phase 2/3 | Restricted CORS configuration for local frontend communication. |
+| `@fastify/helmet` | Runtime | Phase 2/3 | Security response headers. |
+| `@fastify/rate-limit` | Runtime | Phase 2 | Rate limiting on auth and sensitive routes. |
+| `@fastify/multipart` | Runtime | Phase 3/5 | Validated file uploads for complaint & resolution evidence. |
+| `zod` | Runtime | Phase 2 | Schema and payload runtime validation. |
+| `vitest` | Development | Testing setup | Unit and integration test runner. |
+| `supertest` | Development | Testing setup | HTTP assertion library for route testing. |
+| `@types/supertest` | Development | Testing setup | TypeScript definitions for Supertest. |
 
 ---
 
 ## 5. Database and external tools
 
-These are not ordinary frontend/backend application dependencies.
-
-| Tool | Purpose | Where it runs |
-|---|---|---|
-| PostgreSQL | Stores users, complaints, status history, groups, evidence metadata, notifications and other relational records. | Local service/container during development; hosted database may be selected later. |
-| Node.js | JavaScript runtime for Vite tooling and the Fastify server. | Developer machine and deployment runtime. |
-| npm | Installs packages and runs project scripts. | Developer machine and CI. |
-| Git | Tracks source changes and collaboration. | Developer machine and GitHub. |
-
-Use a PostgreSQL version supported by the selected Prisma release. Record the actual local database version in the setup notes when the development environment is created.
+| Tool | Purpose | Where it runs | Status |
+|---|---|---|---|
+| **Node.js** | JavaScript/TypeScript server and tooling runtime. | Developer machine and server runtime. | Installed (baseline Node 26, tested on v26.13.0). |
+| **npm** | Package management and lifecycle scripts. | Developer machine and CI. | Installed (v11.20.0). |
+| **Git** | Distributed version control. | Developer machine and GitHub. | Active repository. |
+| **PostgreSQL** | Relational database for complaints, users, groups, and audit trails. | Local service or container. | Required in Phase 2. |
 
 ---
 
-## 6. Environment variables and secrets
+## 6. Environment variables
 
-Configuration belongs in environment variables, not hard-coded source files.
+### Frontend (`frontend/.env.example`)
+```env
+# API Base URL for backend communication
+VITE_API_BASE_URL=http://127.0.0.1:3000/api/v1
+```
 
-The backend will eventually need values such as:
+### Backend (`backend/.env.example`)
+```env
+# Server Configuration
+PORT=3000
+HOST=127.0.0.1
+NODE_ENV=development
+```
 
-| Variable | Purpose |
-|---|---|
-| `DATABASE_URL` | PostgreSQL connection string. |
-| `SESSION_SECRET` | Secret used by the session implementation. |
-| `PORT` | Backend listening port. |
-| `HOST` | Backend bind address. |
-| `NODE_ENV` | Runtime environment. |
-| `FRONTEND_ORIGIN` | Allowed frontend origin when CORS is enabled. |
-| `UPLOAD_DIR` | Local evidence storage directory during development. |
-
-The exact variables depend on the final implementation. Keep a safe `.env.example` containing placeholders only. Keep real `.env` files out of Git. Never paste credentials into issues, commits, screenshots or public chat.
+Real `.env` files are ignored by Git. Never commit real secrets or database credentials.
 
 ---
 
 ## 7. Version and lockfile policy
 
-1. Use a supported Node.js LTS release compatible with all selected packages. The team should use the same major Node.js version.
-2. Use npm consistently; do not mix npm, pnpm and Yarn lockfiles.
-3. Use compatible stable package releases at setup time. Do not copy old version numbers from tutorials without checking compatibility.
-4. Commit `package.json` and `package-lock.json` together.
-5. Use `npm ci` for repeatable installs after cloning or in CI.
-6. Do not manually edit lockfiles.
-7. Review new dependencies before adding them: purpose, maintenance, license, compatibility and security.
-8. Avoid installing duplicate libraries that solve the same problem.
-9. Update dependencies deliberately, then run tests and type checks.
-10. Do not commit `node_modules/`, build output, secrets or local database files.
+1. **Team baseline:** Node.js 26 LTS. Tested and verified on Node.js `v26.13.0` and npm `11.20.0`.
+2. **Package manager:** npm exclusively. Never commit `yarn.lock` or `pnpm-lock.yaml`.
+3. **Lockfile discipline:** Separate `package-lock.json` files are committed in `frontend/` and `backend/`.
+4. **Reproducible installs:** Use `npm ci` when installing from a fresh clone.
+5. **No root workspaces:** For the MVP, `frontend/` and `backend/` are strictly independent.
+6. **Security & Audit:** Review `npm audit` findings carefully. Do not apply breaking `--force` updates without team review.
+   - *Advisory note:* `npm audit` in `frontend` reports a known ReDoS advisory in `picomatch` (via `tinyglobby` / `vite`). Resolving via `npm audit fix --force` would downgrade to `vite@6.2.7` breaking compatibility with the active Vite 8 template. Per repository policy, breaking downgrades are avoided.
 
 ---
 
-## 8. Common commands
+## 8. Verified verification commands
 
-Run commands from the correct application directory.
+These commands have been executed and verified in this environment:
 
-| Command | Purpose |
-|---|---|
-| `npm install` | Installs dependencies and may update the lockfile. Use during initial setup or when dependencies change. |
-| `npm ci` | Installs exactly from the committed lockfile; preferred for clean setup and CI. |
-| `npm run dev` | Starts the development script defined by that application's package.json. |
-| `npm run build` | Runs the production build script, once configured. |
-| `npm run typecheck` | Runs TypeScript checks, once configured. |
-| `npm test` | Runs the configured test suite. |
-| `npm audit` | Reports known dependency vulnerabilities; review findings rather than blindly applying breaking fixes. |
+### Frontend (`cd frontend`)
+- `npm install`: Clean installation succeeded (lockfile generated).
+- `npm run typecheck`: Passed with 0 errors (`tsc -b --noEmit`).
+- `npm run build`: Production build succeeded (`dist/` generated with 17 modules transformed, ~221 kB JS).
 
-The scripts above must be added to each `package.json` as part of setup. Do not assume a script exists before checking the manifest.
-
----
-
-## 9. Contributor rules
-
-### For Swapnil (frontend)
-
-- Work inside `frontend/` unless a shared API contract change has been agreed.
-- Focus first on React, TypeScript, Vite, Tailwind and the existing shadcn components.
-- Use the agreed API contract; do not invent backend routes or response fields.
-- Use clearly labelled mock data only until the backend integration is ready.
-- Do not add authentication or authorization logic that is treated as a security boundary in the browser.
-- Tell the project lead before adding a new dependency.
-
-### For the backend track
-
-- Work inside `backend/` and the agreed shared documentation.
-- Keep route handlers thin and business logic in modules/services.
-- Enforce session, role, ownership and public/private data rules on the server.
-- Validate untrusted inputs and uploaded files.
-- Do not expose database records directly as public API responses.
-- Tell the project lead before adding a new dependency or changing an API contract.
-
-### For everyone
-
-- Do not edit the same files concurrently.
-- Use feature branches and meaningful commits.
-- Open a pull request for review before merging into `main`.
-- Include setup/test evidence in the pull request.
-- Never commit secrets or real citizen personal information.
-- Do not claim a dependency is installed until it appears in the correct manifest and a clean install succeeds.
-
----
-
-## 10. Official package references
-
-- React: https://react.dev/
-- TypeScript: https://www.typescriptlang.org/
-- Vite: https://vite.dev/
-- Tailwind CSS: https://tailwindcss.com/
-- shadcn/ui: https://ui.shadcn.com/
-- Fastify: https://fastify.dev/
-- Fastify plugins: https://fastify.dev/ecosystem/
-- Zod: https://zod.dev/
-- PostgreSQL: https://www.postgresql.org/
-- Prisma: https://www.prisma.io/docs
-- Argon2: https://github.com/P-H-C/phc-winner-argon2
-- Vitest: https://vitest.dev/
-- Supertest: https://github.com/ladjs/supertest
-- Recharts: https://recharts.org/
-
-**This is the planned dependency baseline, not proof of implementation.** Update this document when actual package manifests are created, and keep it aligned with the dependencies and versions committed in the repository.
+### Backend (`cd backend`)
+- `npm install`: Clean installation succeeded (0 vulnerabilities, lockfile generated).
+- `npm run typecheck`: Passed with 0 errors (`tsc --noEmit`).
+- `npm run build`: Production compilation succeeded (`dist/` generated with `index.js`, `app.js`, and `routes/health.js`).
+- `npm run start` / `npm run dev`: Successfully listened on `http://127.0.0.1:3000`.
+- Health check verification: `GET http://127.0.0.1:3000/health` returned HTTP 200 with JSON:
+  ```json
+  {
+    "status": "ok",
+    "timestamp": "2026-11-18T08:36:25.009Z",
+    "uptime": 1.957
+  }
+  ```

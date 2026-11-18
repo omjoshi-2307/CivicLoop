@@ -42,6 +42,11 @@ Purpose: record decisions, rationale, status and unresolved questions so contrib
 - Status: Undecided
 - Decision: store file metadata and access/approval state in PostgreSQL; production file-storage provider remains open.
 
+### ADR-009 — Node.js runtime baseline
+- Status: Approved
+- Decision: Node.js 26 LTS baseline.
+- Rationale: Standardizes local development, frontend tooling, and backend runtime on a shared modern LTS release.
+
 ## Product decisions already in the MVP baseline
 - Full authentication.
 - Basic rule-based duplicate detection; no ML model in the MVP.
@@ -51,7 +56,6 @@ Purpose: record decisions, rationale, status and unresolved questions so contrib
 - Duplicate grouping is manually confirmed and preserves original complaint records and IDs.
 
 ## Open decisions before implementation
-- Exact Node.js major version and package versions.
 - Session-store adapter and CSRF strategy.
 - Final Prisma schema, ID strategy and authority-to-ward assignment model.
 - Exact API payload schemas, pagination and error envelope.
