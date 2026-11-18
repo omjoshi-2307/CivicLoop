@@ -241,8 +241,12 @@ curl http://127.0.0.1:3000/health
 
 ---
 
-## 8. Upcoming Phase 2 Steps (Database & Authentication)
-- [x] Phase 2.1: Configure PostgreSQL 16 local infrastructure via Docker Compose.
-- [ ] Phase 2.2: Initialize Prisma schema and create initial migrations.
-- [ ] Phase 2.3: Connect backend to development database via `DATABASE_URL`.
-- [ ] Phase 2.4: Implement citizen authentication, persistent session management, and RBAC boundaries.
+## 8. Upcoming Development Steps
+- [x] Phase 1: Establish independent frontend and backend application foundations (PR #1).
+- [x] Phase 2.1: Configure PostgreSQL 16 local infrastructure via Docker Compose (PR #2).
+- [ ] Phase 2.2: Plan and integrate Prisma into the backend.
+- [ ] Phase 2.3: Review and create the initial database schema and migrations.
+- [ ] Phase 2.4: Connect the backend to PostgreSQL and add a database readiness check.
+- [ ] Phase 3: Implement authentication, persistent sessions and backend-enforced RBAC.
+
+Track current status in [PROJECT_PROGRESS.md](PROJECT_PROGRESS.md).
