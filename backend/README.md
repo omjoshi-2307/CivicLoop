@@ -10,6 +10,7 @@ Run commands from this directory:
 - `npm run build` — Compiles TypeScript to `dist/`
 - `npm run start` — Runs the compiled server from `dist/index.js`
 - `npm run typecheck` — Typechecks TypeScript source without emitting files
+- `npm test` — Runs the backend's Node.js test suite using Fastify's in-process injection API
 
 ## Health Check Endpoint
 

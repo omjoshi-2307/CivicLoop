@@ -1,6 +1,12 @@
 # CivicLoop — Testing Strategy
 
-Status: test plan. Test scripts and coverage will be added as modules are implemented.
+Status: Initial backend liveness-route coverage is implemented with Node's built-in test runner and Fastify injection. Broader feature coverage will be added as modules are implemented.
+
+## Implemented smoke coverage
+
+- Backend `GET /health` returns HTTP 200 with a valid ISO timestamp and non-negative uptime.
+- The check uses Fastify's in-process `inject()` API; it does not open a network port or require PostgreSQL.
+- Run it from `backend/` with `npm test`.
 
 ## 1. Testing goals
 - Verify required user workflows.
