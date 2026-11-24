@@ -1,17 +1,17 @@
 import { buildApp } from './app.js'
+import { readServerConfig } from './config/serverConfig.js'
 
-const PORT = Number(process.env.PORT) || 3000
-const HOST = process.env.HOST || '127.0.0.1'
+const config = readServerConfig()
 
 const server = buildApp({
   logger: {
-    level: process.env.LOG_LEVEL || 'info',
+    level: config.logLevel,
   },
 })
 
 async function start() {
   try {
-    await server.listen({ port: PORT, host: HOST })
+    await server.listen({ port: config.port, host: config.host })
   } catch (err) {
     server.log.error(err)
     process.exit(1)
