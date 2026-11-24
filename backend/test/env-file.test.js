@@ -13,7 +13,7 @@ test('development and production scripts load the backend .env file', () => {
   for (const scriptName of ['dev', 'start']) {
     assert.match(
       packageJson.scripts[scriptName],
-      /^node --env-file-if-exists=\\.env(?:\\s|$)/,
+      /^node --env-file-if-exists=\.env(?:\s|$)/,
       `${scriptName} must load .env before executing the server`,
     );
   }
@@ -22,7 +22,7 @@ test('development and production scripts load the backend .env file', () => {
 test('Node env-file loading works and shell variables take precedence', () => {
   const directory = mkdtempSync(join(tmpdir(), 'civicloop-env-test-'));
   const key = 'CIVICLOOP_ENV_FILE_TEST';
-  writeFileSync(join(directory, '.env'), `${key}=from-file\\n`);
+  writeFileSync(join(directory, '.env'), `${key}=from-file\n`);
 
   try {
     const cleanEnvironment = { ...process.env };
